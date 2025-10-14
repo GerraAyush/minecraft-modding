@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "package": "main.java.com.example.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["PlayerDeathMixin"],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
