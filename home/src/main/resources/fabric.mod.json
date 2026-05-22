@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "id": "home",
   "version": "${version}",
-  "name": "Example mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
-  "authors": ["Me!"],
+  "name": "Home",
+  "description": "A mod that allows players to set their homes in any dimension they wish. Players can list, set, goto and delete their homes.",
+  "authors": ["AyushGerra"],
   "contact": {
     "homepage": "https://fabricmc.net/",
     "sources": "https://github.com/FabricMC/fabric-example-mod"
@@ -14,11 +14,10 @@
   "entrypoints": {
     "main": ["com.example.HomeMod"]
   },
-  "mixins": ["home.mixins.json"],
   "depends": {
     "fabricloader": ">=0.16.10",
-    "minecraft": "~1.21.5",
-    "java": ">=21",
+    "minecraft": ">=26.1",
+    "java": ">=25",
     "fabric-api": "*"
   },
   "suggests": {

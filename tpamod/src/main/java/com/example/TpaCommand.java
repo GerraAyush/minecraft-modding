@@ -1,64 +1,49 @@
-package main.java.com.example;
+package com.example;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import net.minecraft.command.CommandSource; // Note: ServerCommandSource extends CommandSource
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-
-import com.example.TpaMod;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.server.level.ServerPlayer;
 
 public class TpaCommand {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(
-            literal("tpa")
-                .then(argument("target", EntityArgumentType.player())
-                    .executes(ctx -> {
-                        ServerPlayerEntity sender = ctx.getSource().getPlayer();
-                        ServerPlayerEntity target = EntityArgumentType.getPlayer(ctx, "target");
-                        TpaMod.sendTpaRequest(sender, target);
-                        return 1;
-                    }))
-        );
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal("tpa")
+                .then(Commands.argument("target", EntityArgument.player())
+                        .executes(context -> sendTeleportRequest(context))));
 
-        dispatcher.register(
-            literal("tpaccept")
-                .executes(ctx -> {
-                    ServerPlayerEntity accepter = ctx.getSource().getPlayer();
-                    TpaMod.acceptTpaRequest(accepter);
+        dispatcher.register(Commands.literal("tpaccept")
+                .executes(context -> {
+                    TpaHandler.acceptTeleport(context.getSource());
                     return 1;
-                })
-        );
+                }));
 
-        dispatcher.register(
-            literal("tpadeny")
-                .executes(ctx -> {
-                    ServerPlayerEntity denier = ctx.getSource().getPlayer();
-                    TpaMod.denyTpaRequest(denier);
+        dispatcher.register(Commands.literal("tpadeny")
+                .executes(context -> {
+                    TpaHandler.denyTpaRequest(context.getSource());
                     return 1;
-                })
-        );
+                }));
 
-        dispatcher.register(
-            literal("back")
-                .executes(ctx -> {
-                    ServerPlayerEntity player = ctx.getSource().getPlayer();
-                    TpaMod.back(player);
+        dispatcher.register(Commands.literal("back")
+                .executes(context -> {
+                    TpaHandler.teleportBack(context.getSource());
                     return 1;
-                })
-        );
+                }));
+
+        dispatcher.register(Commands.literal("front")
+                .executes(context -> {
+                    TpaHandler.teleportFront(context.getSource());
+                    return 1;
+                }));
     }
 
-    private static LiteralArgumentBuilder<ServerCommandSource> literal(String name) {
-        return CommandManager.literal(name);
-    }
-
-    private static <T> RequiredArgumentBuilder<ServerCommandSource, T> argument(String name, ArgumentType<T> type) {
-        return CommandManager.argument(name, type);
+    private static int sendTeleportRequest(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ServerPlayer sender = context.getSource().getPlayer();
+        ServerPlayer target = EntityArgument.getPlayer(context, "target");
+        TpaHandler.requestTeleport(sender, target);
+        return 1;
     }
 }

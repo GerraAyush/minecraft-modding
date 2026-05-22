@@ -1,6 +1,5 @@
-package main.java.com.example.models;
+package com.example.models;
 
-import net.minecraft.server.world.ServerWorld; 
+import net.minecraft.server.level.ServerLevel;
 
-
-public record ServerLocation(ServerWorld world, double x, double y, double z, float yaw, float pitch) {}
+public record ServerLocation(ServerLevel level, double x, double y, double z, float yaw, float pitch) {}

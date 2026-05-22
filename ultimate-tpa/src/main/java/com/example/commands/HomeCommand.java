@@ -1,69 +1,43 @@
-package main.java.com.example.commands;
+package com.example.commands;
 
+import com.example.handlers.HomeHandler;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import net.minecraft.command.CommandSource; // Note: ServerCommandSource extends CommandSource
-import net.minecraft.command.argument.EntityArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
 
-import com.example.UltimateTpaMod;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.Commands.CommandSelection;
 
 
 public class HomeCommand {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(
-            literal("home")
-                .then(literal("go")
-                    .then(argument("target", StringArgumentType.string())
-                        .executes(ctx -> {
-                            ServerPlayerEntity sender = ctx.getSource().getPlayer();
-                            String target = StringArgumentType.getString(ctx, "target");
-                            UltimateTpaMod.goHomeRequest(sender, target);
-                            return 1;
-                        })
-                    )
-                )
-        );
+    public static void register(
+            CommandDispatcher<CommandSourceStack> dispatcher,
+            CommandBuildContext dedicated,
+            CommandSelection environment) {
+                HomeHandler handler = new HomeHandler();
 
         dispatcher.register(
-            literal("home")
-                .then(literal("add")
-                    .then(argument("target", StringArgumentType.string())
-                        .executes(ctx -> {
-                            ServerPlayerEntity sender = ctx.getSource().getPlayer();
-                            String target = StringArgumentType.getString(ctx, "target");
-                            UltimateTpaMod.addHomeRequest(sender, target);
-                            return 1;
-                        })
-                    )
-                )
-        );
+                Commands.literal("home")
+                        .then(Commands.literal("go")
+                                .then(Commands.argument("target", StringArgumentType.string())
+                                        .executes(context -> handler.dispatcher("go", context)))));
 
         dispatcher.register(
-            literal("home")
-                .then(literal("del")
-                    .then(argument("target", StringArgumentType.string())
-                        .executes(ctx -> {
-                            ServerPlayerEntity sender = ctx.getSource().getPlayer();
-                            String target = StringArgumentType.getString(ctx, "target");
-                            UltimateTpaMod.delHomeRequest(sender, target);
-                            return 1;
-                        })
-                    )
-                )
-        );
-    }
+                Commands.literal("home")
+                        .then(Commands.literal("add")
+                                .then(Commands.argument("target", StringArgumentType.string())
+                                        .executes(context -> handler.dispatcher("add", context)))));
 
-    private static LiteralArgumentBuilder<ServerCommandSource> literal(String name) {
-        return CommandManager.literal(name);
-    }
+        dispatcher.register(
+                Commands.literal("home")
+                        .then(Commands.literal("delete")
+                                .then(Commands.argument("target", StringArgumentType.string())
+                                        .executes(context -> handler.dispatcher("delete", context)))));
 
-    private static <T> RequiredArgumentBuilder<ServerCommandSource, T> argument(String name, ArgumentType<T> type) {
-        return CommandManager.argument(name, type);
+        dispatcher.register(
+                Commands.literal("home")
+                        .then(Commands.literal("list")
+                                .executes(context -> handler.dispatcher("list", context))));
     }
 }
